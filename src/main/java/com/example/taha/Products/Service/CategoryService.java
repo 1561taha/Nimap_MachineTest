@@ -1,6 +1,7 @@
 package com.example.taha.Products.Service;
 
 import com.example.taha.Products.Model.Category;
+import com.example.taha.Products.Model.CategoryDto;
 import com.example.taha.Products.Repo.CategoryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,22 +15,44 @@ public class CategoryService {
     @Autowired
     private CategoryRepo categoryRepo;
 
-    public Page<Category> getAllCategories(int page) {
-        return categoryRepo.findAll(PageRequest.of(page, 5));
+    public Page<CategoryDto> getAllCategories(int page) {
+        return categoryRepo.findAll(PageRequest.of(page, 5))
+                .map(category -> new CategoryDto(
+                        category.getId(),
+                        category.getName(),
+                        category.getDescription()
+                ));
     }
 
-    public Category createCategory(Category category) {
-        return categoryRepo.save(category);
+    public CategoryDto createCategory(Category category) {
+        Category savedCategory = categoryRepo.save(category);
+        return new CategoryDto(
+                savedCategory.getId(),
+                savedCategory.getName(),
+                savedCategory.getDescription()
+        );
     }
 
-    public Optional<Category> getCategoryById(Long id) {
-        return categoryRepo.findById(id);
+    public Optional<CategoryDto> getCategoryById(Long id) {
+        return categoryRepo.findById(id)
+                .map(category -> new CategoryDto(
+                        category.getId(),
+                        category.getName(),
+                        category.getDescription()
+                ));
     }
 
-    public Optional<Category> updateCategory(Long id, Category newCategory) {
+    public Optional<CategoryDto> updateCategory(Long id, Category newCategory) {
         return categoryRepo.findById(id).map(category -> {
             category.setName(newCategory.getName());
-            return categoryRepo.save(category);
+            category.setDescription(newCategory.getDescription());
+
+            Category updatedCategory = categoryRepo.save(category);
+            return new CategoryDto(
+                    updatedCategory.getId(),
+                    updatedCategory.getName(),
+                    updatedCategory.getDescription()
+            );
         });
     }
 

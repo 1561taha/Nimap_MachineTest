@@ -39,8 +39,21 @@ public class ProductService {
                 });
     }
 
-    public Product createProduct(Product product) {
-        return productRepo.save(product);
+    public ProductResponseDto createProduct(Product product) {
+        Product savedProduct = productRepo.save(product);
+        Category category = savedProduct.getCategory();
+        CategoryDto categoryDto = new CategoryDto(
+                category.getId(),
+                category.getName(),
+                category.getDescription()
+        );
+        
+        return new ProductResponseDto(
+                savedProduct.getId(),
+                savedProduct.getName(),
+                savedProduct.getPrice(),
+                categoryDto
+        );
     }
 
     public Optional<ProductResponseDto> getProductById(Long id) {
@@ -57,12 +70,26 @@ public class ProductService {
         });
     }
 
-    public Optional<Product> updateProduct(Long id, Product newProduct) {
+    public Optional<ProductResponseDto> updateProduct(Long id, Product newProduct) {
         return productRepo.findById(id).map(product -> {
             product.setName(newProduct.getName());
             product.setPrice(newProduct.getPrice());
             product.setCategory(newProduct.getCategory());
-            return productRepo.save(product);
+            
+            Product updatedProduct = productRepo.save(product);
+            Category category = updatedProduct.getCategory();
+            CategoryDto categoryDto = new CategoryDto(
+                    category.getId(),
+                    category.getName(),
+                    category.getDescription()
+            );
+            
+            return new ProductResponseDto(
+                    updatedProduct.getId(),
+                    updatedProduct.getName(),
+                    updatedProduct.getPrice(),
+                    categoryDto
+            );
         });
     }
 
